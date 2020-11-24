@@ -25,7 +25,7 @@ sem_t s2;// 信号量s2表示缓冲区已经放的产品
 
 typedef struct {// 初始化共享内存空间使用的结构体
 	char name[20]; // 杨卓
-	int id;// 20031211470
+	int id;// 200312*****
 }yz;
 
 struct buff_struct{
@@ -34,7 +34,7 @@ struct buff_struct{
 };
 
 
-// 杨卓 20031211470
+// 杨卓 200312*****
 // 说明: 生成一个共享内存区
 // init_key: 生成共享内存区使用的键值
 // ipc_size: 共享内存区大小，字节
@@ -234,7 +234,7 @@ void* Y(void *arg)
         
 
 
-// 20031211470 杨卓
+// 200312***** 杨卓
 int main()
 {	
 
@@ -273,7 +273,7 @@ int main()
     printf("当前创建了2个共享内存区，程序出错or意外退出需要手动处理\n"); // 避免因为意外关闭程序或陷入死循环，需要手动清空信息
     printf("ID是: %d 和 %d, 使用ipcrm -m ID处理\n\n",id,id2);
     printf("这里我没有使用读取文件操作，而是滚键盘输入了一个超长字符串，效果反正一样的\n");
-    printf("模拟文件的字符串：1234567890qwertyuiopasdfghjklzxfjpasdjojoAJSDP20031211470IjpaJPDAJSdopjaodpJPOSdjAOPDJAOPdsjOPAJDOASMDKLAIFNKASNDIAJDADJklJIASJDjlJASldjAadasdcvbnmQWERTYUIOPASDFGHJKLZXCVBNMadjsjdidsadiwduhOIDHIJAIDnsiaDISdIJSLDKpiajdPIJSDADilAJDINDJSpdajdajdAJDOSJD");
+    printf("模拟文件的字符串：1234567890qwertyuiopasdfghjklzxfjpasdjojoAJSDP200312*****IjpaJPDAJSdopjaodpJPOSdjAOPDJAOPdsjOPAJDOASMDKLAIFNKASNDIAJDADJklJIASJDjlJASldjAadasdcvbnmQWERTYUIOPASDFGHJKLZXCVBNMadjsjdidsadiwduhOIDHIJAIDnsiaDISdIJSLDKpiajdPIJSDADilAJDINDJSpdajdajdAJDOSJD");
     printf("\n====================================================\n\n");
     struct share_2_part *share;
     share = (struct share_2_part *)malloc(sizeof(struct share_2_part));
