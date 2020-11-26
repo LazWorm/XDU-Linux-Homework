@@ -91,7 +91,7 @@ int main(){
         while(!semaphore_p(sem_id)){
             
         }
-		if (shared->written == 1){
+		if (shared->written == 1 && now_posi <= shared->size){
 			printf("\n\n=====Y 进入临界区1=====\n");
 			strcpy(out_str,shared->text);
             now_posi += strlen(out_str)-1;
@@ -114,7 +114,7 @@ int main(){
 		while(!semaphore_p(sem_id)){
             
         }
-		if (shared2->written == 1){
+		if (shared2->written == 1 && now_posi <= shared->size){
 			printf("\n\n=====Y 进入临界区2=====\n");
 			strcpy(out_str,shared2->text);
             now_posi += strlen(out_str)-1;
@@ -133,13 +133,13 @@ int main(){
 
         }
 		sleep(rand() % 2);
-		if (now_posi >= shared->size){
-			printf("\n\n\n!!!!!文件读取和写入共享区结束\n");
+		if (now_posi+1 >= shared->size){
+			printf("\n\n\n\n=============文件读取和写入共享区结束===========\n");
 			loop = 0;
 		}
         
     }
-    printf("\n\n%s\n",output);
+    printf("\n\n最终处理好的数据是 \n%s\n",output);
     return 0;
 }
 

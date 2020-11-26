@@ -54,11 +54,11 @@ int main(){
 	char l_str[500]; 
 	FILE *fp;
     if((fp = fopen("input.txt","r")) == NULL){
-        printf("\n\n文件读取失败，会直接使用提前预设的一个长字符串\n\n");
+        printf("\n\n文件读取失败\n\n");
     } else {
         fgets(l_str,500,fp);
     }
-	printf("文件读取成功，数据长度为%d",strlen(l_str));
+	printf("文件读取成功，数据长度为%d\n",strlen(l_str));
 	// 共享内存空间1
     int shm_id;
     struct shm_data *shared;
@@ -67,7 +67,7 @@ int main(){
         perror("shmget()");
     }
     shared = (struct shm_data *)shmat(shm_id, 0, 0);
-    printf("共享内存空间创建完毕, ID 为%d",shm_id);
+    printf("共享内存空间创建完毕, ID 为%d\n",shm_id);
     shared->size = strlen(l_str);
     shared->written = 0;
 	
@@ -79,10 +79,10 @@ int main(){
         perror("shmget()");
     }
     shared2 = (struct shm_data *)shmat(shm_id2, 0, 0);
-    printf("共享内存空间创建完毕, ID 为%d",shm_id2);
+    printf("共享内存空间创建完毕, ID 为%d\n",shm_id2);
     shared2->size = strlen(l_str);
     shared2->written = 0;
-	printf("文件读取成功，数据长度为%d",shared2->size);
+	printf("文件读取成功，数据长度为%d\n\n",shared2->size);
     
 
 
@@ -112,22 +112,24 @@ int main(){
 		//进入临界区1
 		if(!semaphore_p(sem_id))
 			exit(EXIT_FAILURE);
-		if (shared->written == 0){
+		if (shared->written == 0 && now_posi < file_len){
 			strcpy(shared->text,"");
 			printf("\n\n=====X进入临界区1=====\n");
 			int last_posi = now_posi;
-			strncpy(str,l_str + now_posi, min(20,file_len - now_posi));// 一次最多向共享内存区写入20个字符
-			if (min(20,file_len - now_posi) < 20){
-				printf("\n\n\nERROE%d",file_len - now_posi);
+			now_posi += 20;
+			if (now_posi > file_len){
+				// tail
+				char t_str[20];
+				int tail = file_len - last_posi;
+				strncpy(t_str,l_str + last_posi, tail);
+				
+				strcpy(shared->text, t_str);
+			}else if(now_posi <= file_len){
+				strncpy(str,l_str + last_posi, 20);
+				strcpy(shared->text, str);
 			}
-			now_posi += min(20,file_len - now_posi);
-			if (now_posi -last_posi != 20){
-				char tstr[file_len - now_posi];
-				strncpy(tstr,l_str,now_posi -last_posi);
-				printf("\n\n%s\n\n",tstr);
-				strcpy(shared->text, tstr);
-			}
-			strcpy(shared->text, str);
+			shared->written = 1; 
+			
 			printf("X 在临界区1 写入%s \n", shared->text);
 			shared->written = 1; // 说明已经写入
 		}
@@ -138,21 +140,29 @@ int main(){
 		//进入临界区2
 		if(!semaphore_p(sem_id2))
 			exit(EXIT_FAILURE);
-		if (shared2->written == 0){
+		if (shared2->written == 0 && now_posi < file_len){
 			strcpy(shared2->text,"");
-			printf("\n\n=====X进入临界区2======\n");
+			printf("\n\n=====X进入临界区2=====\n");
 			int last_posi = now_posi;
-			strncpy(str,l_str + now_posi, min(20,file_len - now_posi));// 一次最多向共享内存区写入20个字符
-			now_posi += min(20,file_len - now_posi);
-			strcpy(shared2->text, str);
+			now_posi += 20;
+			if (now_posi > file_len){
+				// tail
+				char t_str[20];
+				int tail = file_len - last_posi;
+				strncpy(t_str,l_str + last_posi, tail);
+				strcpy(shared2->text, t_str);
+			}else if(now_posi <= file_len){
+				strncpy(str,l_str + last_posi, 20);
+				strcpy(shared2->text, str);
+			}
 			printf("X 在临界区2 写入%s \n", shared2->text);
-			shared2->written = 1; // 说明已经写入
+			shared2->written = 1; 
 		}
 		if(!semaphore_v(sem_id2))
 			exit(EXIT_FAILURE);
 		sleep(rand() % 2);
 		if (now_posi >= file_len){
-			printf("!!!!!文件读取和写入共享区结束\n");
+			printf("\n\n\n\n=============文件读取和写入共享区结束===========\n");
 			loop = 0;
 		}
 	}
@@ -164,23 +174,6 @@ int main(){
 	return 0;
 }
    
-
-/*
-int main(){
-    int shm_id;
-    int *share;
-    shm_id = shmget (1234, getpagesize(), IPC_CREAT);
-    if(shm_id == -1){
-        perror("shmget()");
-    }
-    share = (int *)shmat(shm_id, 0, 0);
-    while(1){
-        sleep(1);
-        printf("%d\n", *share);
-    }
-    return 0;
-*/
-
 
 
 
